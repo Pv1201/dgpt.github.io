@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DispensaryGPT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Sage & Stone -->
+    <!-- Application Structure Plan: The application is designed as a single-page executive dashboard. The structure flows from a high-level summary to detailed breakdowns, addressing the key questions from the source text in a logical order. 1) 'Key Metrics' for an instant snapshot. 2) 'Business Model' to detail revenue vs. costs. 3) 'Financial Scenarios' section with interactive tabs to explore specific, detailed profit models without cluttering the main view. 4) 'Profitability Calculator' for interactive financial modeling. 5) 'Scalability & Operations' to address the technical and labor strategy. This structure allows a user to get a quick overview and then dive deep into specific financial questions, which is ideal for strategic planning. -->
+    <!-- Visualization & Content Choices: 
+        - Key Metrics (Cards): Report Info -> Core pricing. Goal -> Inform. Method -> HTML/Tailwind cards. Interaction -> None. Justification -> Quick, high-level summary.
+        - Cost/Revenue Charts (Doughnut/Bar): Report Info -> Cost proportions and growth. Goal -> Compare/Show Change. Method -> Chart.js. Interaction -> Hover tooltips. Justification -> Visualizes key financial dynamics. Library -> Chart.js.
+        - Financial Scenario Tables (HTML Tables): Report Info -> Detailed profit calculations for specific scenarios. Goal -> Inform/Analyze. Method -> Styled HTML tables with JS tab switching. Interaction -> Click tabs to switch views. Justification -> Provides granular data for deep financial analysis, which charts cannot offer.
+        - Labor Automation (Line Chart): Report Info -> Manual effort decrease. Goal -> Show Change. Method -> Chart.js Line. Interaction -> Hover tooltips. Justification -> Illustrates the core scalability thesis. Library -> Chart.js.
+        - Technical Details (Accordion): Report Info -> Maintenance, tech stack. Goal -> Organize. Method -> HTML/Tailwind accordion. Interaction -> Click to expand. Justification -> Condenses detailed text into a clean interface.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 280px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 380px;
+                max-height: 400px;
+            }
+        }
+        .metric-card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .section-card {
+             background-color: #FFFFFF;
+             border-radius: 0.75rem;
+             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+             padding: 1rem 1.5rem 2rem;
+        }
+         @media (min-width: 768px) {
+            .section-card {
+                padding: 2rem;
+            }
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .tab-button.active {
+            background-color: #ECFDF5;
+            color: #065F46;
+            border-color: #6EE7B7;
+        }
+        .tab-button:not(.active) {
+            color: #4B5563;
+            background-color: #F3F4F6;
+        }
+        .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <span class="text-xl sm:text-2xl font-bold text-green-700">DispensaryGPT</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+                    <a href="#metrics" class="hover:text-green-700 transition">Metrics</a>
+                    <a href="#scenarios" class="hover:text-green-700 transition">Financial Scenarios</a>
+                    <a href="#calculator" class="hover:text-green-700 transition">Profit Calculator</a>
+                    <a href="#scaling" class="hover:text-green-700 transition">Scaling & Ops</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+
+        <section id="metrics" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Core Business Metrics</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="metric-card">
+                    <h3 class="text-base font-semibold text-gray-500 mb-2">Monthly Subscription</h3>
+                    <p class="text-4xl md:text-5xl font-bold text-green-700">$1,300</p>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-2">Per Dispensary</p>
+                </div>
+                <div class="metric-card">
+                    <h3 class="text-base font-semibold text-gray-500 mb-2">One-Time Onboarding</h3>
+                    <p class="text-4xl md:text-5xl font-bold text-green-700">$1,600</p>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-2">Setup & Initial Fine-Tuning</p>
+                </div>
+                <div class="metric-card">
+                    <h3 class="text-base font-semibold text-gray-500 mb-2"> Labor Rate (Est.)</h3>
+                    <p class="text-4xl md:text-5xl font-bold text-green-700">$45/hr</p>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-2">For Onboarding & Maintenance</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="scenarios" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Detailed Financial Scenarios</h2>
+            <div class="section-card">
+                 <p class="text-center text-gray-600 mb-8 max-w-4xl mx-auto">This section provides a granular breakdown of costs and profitability under specific growth assumptions. Use the tabs to switch between the initial slow-growth phase and the subsequent expansion phase to understand the financial trajectory of the business.</p>
+                
+                <div class="flex justify-center space-x-2 sm:space-x-4 mb-8">
+                    <button id="tab-scenario1" class="tab-button active">First Year (2 Clients)</button>
+                    <button id="tab-scenario2" class="tab-button">Expansion Phase</button>
+                </div>
+
+                <div id="content-scenario1">
+                    <h3 class="text-xl font-semibold text-center mb-2">Scenario 1: First Year with Two Clients</h3>
+                    <p class="text-center text-sm text-gray-500 mb-6">This projection assumes you onboard one client in Month 1 and a second client in Month 2, then service only these two clients for the remainder of the year.</p>
+                    <div class="table-responsive">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Month</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Clients</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Revenue</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Labor (Hrs)</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Labor Cost</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Software Cost</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Total Cost</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Monthly Profit</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Cum. Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scenario1-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="content-scenario2" class="hidden">
+                    <h3 class="text-xl font-semibold text-center mb-2">Scenario 2: Expansion Phase (Post-18 Months)</h3>
+                    <p class="text-center text-sm text-gray-500 mb-6">This table projects financials starting from Month 19, assuming you have 2 stable clients and begin onboarding 1 new client each month. Labor costs per client decrease due to automation.</p>
+                    <div class="table-responsive">
+                       <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Month</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Total Clients</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Revenue</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Total Labor Cost</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Total Software Cost</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Total Cost</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Monthly Profit</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Profit Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scenario2-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                 <div class="mt-8 pt-6 border-t border-gray-200">
+                     <h3 class="text-xl font-semibold text-center mb-4">Core Model Development Costs (One-Time)</h3>
+                     <p class="text-center text-sm text-gray-500 mb-6 max-w-2xl mx-auto">These are estimated one-time software costs for the initial development of the base DispensaryGPT model, separate from ongoing, per-client operational costs. This is your initial R&D investment.</p>
+                     <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-lg">
+                        <div class="flex justify-between items-center text-sm mb-2">
+                            <span class="text-gray-600">GCP Vertex AI (Model Training/Tuning):</span>
+                            <span class="font-semibold text-gray-800">$2,500 - $4,000</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm mb-2">
+                            <span class="text-gray-600">GCP Cloud Storage / BigQuery (Dataset Prep):</span>
+                            <span class="font-semibold text-gray-800">$500 - $1,000</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm pt-2 border-t mt-2">
+                            <span class="text-gray-700 font-bold">Estimated Total One-Time Cost:</span>
+                            <span class="font-bold text-green-700">$3,000 - $5,000</span>
+                        </div>
+                     </div>
+                 </div>
+            </div>
+        </section>
+
+        <section id="calculator" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Interactive Profitability Calculator</h2>
+            <div class="section-card">
+                 <p class="text-center text-gray-600 mb-10 max-w-4xl mx-auto">Explore the financial potential as you scale. Adjust the number of clients and cost assumptions to see the immediate impact on monthly revenue, costs, and profit margin.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-6">
+                        <div>
+                            <label for="clientsSlider" class="block text-sm font-medium text-gray-700">Number of Dispensary Clients: <span id="clientsValue" class="font-bold text-green-700">10</span></label>
+                            <input id="clientsSlider" type="range" min="1" max="50" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div>
+                            <label for="laborSlider" class="block text-sm font-medium text-gray-700">Avg. Monthly Labor Cost per Client: $<span id="laborValue" class="font-bold text-green-700">720</span></label>
+                            <input id="laborSlider" type="range" min="300" max="1500" value="720" step="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                         <div>
+                            <label for="softwareSlider" class="block text-sm font-medium text-gray-700">Avg. Monthly Software Cost per Client: $<span id="softwareValue" class="font-bold text-green-700">141</span></label>
+                            <input id="softwareSlider" type="range" min="50" max="500" value="141" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                        <h3 class="text-lg font-semibold text-center mb-4 text-gray-800">Projected Monthly Financials</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Total Revenue:</span>
+                                <span id="calcRevenue" class="text-2xl font-bold text-gray-900">$13,000</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Total Costs:</span>
+                                <span id="calcCosts" class="text-2xl font-bold text-red-600">$8,610</span>
+                            </div>
+                            <hr class="my-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 font-bold">Net Profit:</span>
+                                <span id="calcProfit" class="text-3xl font-bold text-green-700">$4,390</span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-gray-600 font-bold">Profit Margin:</span>
+                                <span id="calcMargin" class="text-3xl font-bold text-green-700">33.8%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="scaling" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Scaling & Operational Strategy</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                <div class="section-card">
+                    <h3 class="text-xl font-semibold text-center mb-4">Labor Automation & Scalability</h3>
+                     <p class="text-center text-gray-600 mb-6">Profitability hinges on reducing manual labor per client. Initial onboarding is labor-intensive, but data cleaning, fine-tuning, and validation processes are automated over time. This chart shows the projected drop in monthly maintenance hours as the system matures.</p>
+                    <div class="chart-container">
+                        <canvas id="automationChart"></canvas>
+                    </div>
+                </div>
+                <div class="section-card">
+                    <h3 class="text-xl font-semibold text-center mb-4">Technical & Maintenance Roadmap</h3>
+                     <p class="text-center text-gray-600 mb-6">The long-term vision is a scalable SaaS platform, requiring a structured approach to maintenance, features, and onboarding. Here are the core operational components.</p>
+                    <div id="accordion-container" class="space-y-3">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const baseData = {
+                costs: {
+                    laborRate: 45,
+                    softwarePerClient: 141.13
+                },
+                revenue: {
+                    subscription: 1300,
+                    onboarding: 1600
+                },
+                automation: {
+                    initialHours: 16,
+                    reductionPerClient: 0.25 
+                },
+                accordion: [
+                    {
+                        title: "The Role of Monthly Fine-Tuning",
+                        content: "Fine-tuning adapts the base AI model to each dispensary's unique data, like product names, customer slang, and sales patterns. Initially, this is a monthly task to quickly correct errors and improve accuracy. It involves feeding new, cleaned sales data into the model to keep its responses relevant and prevent 'hallucinations' or incorrect answers."
+                    },
+                    {
+                        title: "Strategy to Prevent AI Hallucination",
+                        content: "The primary strategy is a RAG (Retrieval-Augmented Generation) system combined with rigorous fine-tuning. The model is trained to first retrieve factual information (e.g., product inventory, sales data) from the dispensary's database (like Dutchie) and then use that data to generate an answer. This grounds the AI in reality. Regular fine-tuning on client-specific data further reduces the chance of making things up."
+                    },
+                    {
+                        title: "Transitioning to Quarterly Maintenance",
+                        content: "After 3-4 monthly cycles, the model for a specific client becomes highly stable. At this point, maintenance can shift to a quarterly schedule. The goal of the initial intensive phase is to build a robust, client-specific knowledge base. Once stable, only significant changes (like adding a new product category) would require immediate attention."
+                    },
+                    {
+                        title: "18-Month Vision: A Scalable SaaS Product",
+                        content: "The 18-month goal is to evolve from a service-heavy model to a true SaaS platform. This includes building a 'Copilot' admin panel for clients to manage their AI and a polished 'DispensaryGPT' chat interface. The onboarding process will become highly automated, allowing for rapid scaling. The initial manual work serves as the R&D to build these automated tools."
+                    },
+                     {
+                        title: "Tech Stack & Associated Costs",
+                        content: "The stack is primarily GCP (Google Cloud Platform). The estimated software costs of ~$141/mo per client are comprehensive, covering Vertex AI for model hosting, Cloud Storage, database solutions, and necessary monitoring/observability tools (e.g., GCP's Cloud Monitoring suite, analogous to Datadog)."
+                    }
+                ]
+            };
+            const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+            const formatPercent = (value) => new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
+            
+            const renderAutomationChart = () => {
+                const ctx = document.getElementById('automationChart').getContext('2d');
+                if (window.automationChart instanceof Chart) {
+                    window.automationChart.destroy();
+                }
+                const labels = [];
+                const data = [];
+                let currentHours = baseData.automation.initialHours;
+                for(let i = 1; i <= 10; i++) {
+                    labels.push(`Client ${i}`);
+                    data.push(currentHours.toFixed(2));
+                    currentHours = currentHours * (1 - baseData.automation.reductionPerClient);
+                }
+
+                window.automationChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Monthly Manual Labor Hours',
+                            data: data,
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Hours per Month' } },
+                            x: { grid: { display: false } }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            };
+
+            const clientsSlider = document.getElementById('clientsSlider');
+            const laborSlider = document.getElementById('laborSlider');
+            const softwareSlider = document.getElementById('softwareSlider');
+            const clientsValue = document.getElementById('clientsValue');
+            const laborValue = document.getElementById('laborValue');
+            const softwareValue = document.getElementById('softwareValue');
+            const calcRevenue = document.getElementById('calcRevenue');
+            const calcCosts = document.getElementById('calcCosts');
+            const calcProfit = document.getElementById('calcProfit');
+            const calcMargin = document.getElementById('calcMargin');
+
+            const updateCalculator = () => {
+                const numClients = parseInt(clientsSlider.value);
+                const laborCost = parseInt(laborSlider.value);
+                const softwareCost = parseInt(softwareSlider.value);
+                
+                clientsValue.textContent = numClients;
+                laborValue.textContent = laborCost;
+                softwareValue.textContent = softwareCost;
+                
+                const totalRevenue = numClients * baseData.revenue.subscription;
+                const totalCosts = numClients * (laborCost + softwareCost);
+                const totalProfit = totalRevenue - totalCosts;
+                const profitMargin = totalRevenue > 0 ? totalProfit / totalRevenue : 0;
+                
+                calcRevenue.textContent = formatCurrency(totalRevenue);
+                calcCosts.textContent = formatCurrency(totalCosts);
+                calcProfit.textContent = formatCurrency(totalProfit);
+                calcMargin.textContent = formatPercent(profitMargin);
+            };
+
+            [clientsSlider, laborSlider, softwareSlider].forEach(slider => slider.addEventListener('input', updateCalculator));
+            
+            const renderAccordion = () => {
+                const container = document.getElementById('accordion-container');
+                container.innerHTML = '';
+                baseData.accordion.forEach((item) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'border border-gray-200 rounded-lg';
+                    itemDiv.innerHTML = `
+                        <button class="accordion-header flex justify-between items-center w-full p-4 text-left font-medium text-gray-700 hover:bg-gray-50">
+                            <span class="text-sm sm:text-base">${item.title}</span>
+                             <svg class="accordion-icon w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content hidden p-4 border-t border-gray-200 bg-gray-50">
+                            <p class="text-gray-600 text-sm sm:text-base">${item.content}</p>
+                        </div>`;
+                    container.appendChild(itemDiv);
+                });
+
+                container.addEventListener('click', (e) => {
+                    const header = e.target.closest('.accordion-header');
+                    if (header) {
+                        const content = header.nextElementSibling;
+                        const icon = header.querySelector('.accordion-icon');
+                        content.classList.toggle('hidden');
+                        icon.classList.toggle('rotate-180');
+                    }
+                });
+            };
+
+            const populateScenario1Table = () => {
+                const tableBody = document.getElementById('scenario1-table-body');
+                tableBody.innerHTML = '';
+                let cumulativeProfit = 0;
+                let c1_hours = baseData.automation.initialHours;
+                let c2_hours = 0;
+
+                for (let i = 1; i <= 12; i++) {
+                    let clients = 0;
+                    let onboardingRev = 0;
+                    if (i >= 1) clients = 1;
+                    if (i >= 2) clients = 2;
+                    if (i === 1) onboardingRev = baseData.revenue.onboarding;
+                    if (i === 2) {
+                        onboardingRev = baseData.revenue.onboarding;
+                        c2_hours = c1_hours; 
+                    }
+                    
+                    c1_hours = i > 1 ? c1_hours * (1 - baseData.automation.reductionPerClient / 4) : c1_hours;
+                    if (i > 2) {
+                       c2_hours = c2_hours * (1 - baseData.automation.reductionPerClient / 4);
+                    }
+                    
+                    const totalHours = (i>=1 ? c1_hours : 0) + (i>=2 ? c2_hours: 0);
+                    const subRev = clients * baseData.revenue.subscription;
+                    const totalRev = subRev + onboardingRev;
+                    const laborCost = totalHours * baseData.costs.laborRate;
+                    const softwareCost = clients * baseData.costs.softwarePerClient;
+                    const totalCost = laborCost + softwareCost;
+                    const monthlyProfit = totalRev - totalCost;
+                    cumulativeProfit += monthlyProfit;
+
+                    const row = `
+                        <tr class="bg-white border-b">
+                            <td class="px-4 py-3 font-medium">${i}</td>
+                            <td class="px-4 py-3 text-center">${clients}</td>
+                            <td class="px-4 py-3 text-right">${formatCurrency(totalRev)}</td>
+                            <td class="px-4 py-3 text-center">${totalHours.toFixed(1)}</td>
+                            <td class="px-4 py-3 text-right">${formatCurrency(laborCost)}</td>
+                            <td class="px-4 py-3 text-right">${formatCurrency(softwareCost)}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-red-600">${formatCurrency(totalCost)}</td>
+                            <td class="px-4 py-3 text-right font-semibold ${monthlyProfit >= 0 ? 'text-green-700' : 'text-red-700'}">${formatCurrency(monthlyProfit)}</td>
+                            <td class="px-4 py-3 text-right font-bold ${cumulativeProfit >= 0 ? 'text-green-800' : 'text-red-800'}">${formatCurrency(cumulativeProfit)}</td>
+                        </tr>`;
+                    tableBody.innerHTML += row;
+                }
+            };
+
+            const populateScenario2Table = () => {
+                const tableBody = document.getElementById('scenario2-table-body');
+                tableBody.innerHTML = '';
+                let totalClients = 2;
+                const avgLaborCostPerClient = (baseData.automation.initialHours * Math.pow(1 - baseData.automation.reductionPerClient, 3)) * baseData.costs.laborRate;
+
+                for (let i = 19; i <= 36; i++) {
+                    totalClients++;
+                    const onboardingRev = baseData.revenue.onboarding;
+                    const subRev = totalClients * baseData.revenue.subscription;
+                    const totalRev = subRev + onboardingRev;
+                    const laborCost = totalClients * avgLaborCostPerClient;
+                    const softwareCost = totalClients * baseData.costs.softwarePerClient;
+                    const totalCost = laborCost + softwareCost;
+                    const monthlyProfit = totalRev - totalCost;
+                    const profitMargin = totalRev > 0 ? monthlyProfit / totalRev : 0;
+
+                    const row = `
+                        <tr class="bg-white border-b">
+                            <td class="px-4 py-3 font-medium">${i}</td>
+                            <td class="px-4 py-3 text-center">${totalClients}</td>
+                            <td class="px-4 py-3 text-right">${formatCurrency(totalRev)}</td>
+                            <td class="px-4 py-3 text-right">${formatCurrency(laborCost)}</td>
+                            <td class="px-4 py-3 text-right">${formatCurrency(softwareCost)}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-red-600">${formatCurrency(totalCost)}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-green-700">${formatCurrency(monthlyProfit)}</td>
+                            <td class="px-4 py-3 text-right font-bold text-green-800">${formatPercent(profitMargin)}</td>
+                        </tr>`;
+                    tableBody.innerHTML += row;
+                }
+            };
+            
+            const tab1 = document.getElementById('tab-scenario1');
+            const tab2 = document.getElementById('tab-scenario2');
+            const content1 = document.getElementById('content-scenario1');
+            const content2 = document.getElementById('content-scenario2');
+            
+            tab1.addEventListener('click', () => {
+                tab1.classList.add('active');
+                tab2.classList.remove('active');
+                content1.classList.remove('hidden');
+                content2.classList.add('hidden');
+            });
+            
+            tab2.addEventListener('click', () => {
+                tab2.classList.add('active');
+                tab1.classList.remove('active');
+                content2.classList.remove('hidden');
+                content1.classList.add('hidden');
+            });
+
+            renderAutomationChart();
+            updateCalculator();
+            renderAccordion();
+            populateScenario1Table();
+            populateScenario2Table();
+        });
+    </script>
+</body>
+</html>
+
