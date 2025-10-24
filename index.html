@@ -190,7 +190,6 @@
         </section>
 
         <section id="costs">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Cost Structure</h2>
              <p class="text-center text-gray-600 mb-10 max-w-3xl mx-auto">Breakdown of the initial investment and recurring operational costs per client for the live RAG system.</p>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                 <div class="section-card">
@@ -256,7 +255,7 @@
         </section>
 
          <section id="projections">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Costs, Timeline, Roadmap</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Costs - Timeline - Roadmap</h2>
             <div class="section-card">
                  <p class="text-center text-gray-600 mb-8 max-w-4xl mx-auto">Financial performance based on the scenarios presented in the provided documents.</p>
 
@@ -538,12 +537,14 @@
              };
              [clientsSlider, laborSlider, softwareSlider].forEach(slider => slider.addEventListener('input', updateCalculator));
 
+             // --- Tab Switching Logic --- /* Remains the same */
               const tabButtons = document.querySelectorAll('.tab-button'); const tabContents = document.querySelectorAll('.tab-content');
               tabButtons.forEach(button => { button.addEventListener('click', () => {
                   tabButtons.forEach(btn => btn.classList.remove('active')); tabContents.forEach(content => content.classList.add('hidden')); button.classList.add('active');
                   const targetId = button.getAttribute('data-target'); document.getElementById(targetId).classList.remove('hidden');
               }); });
 
+             // --- Mobile Menu Logic --- /* Remains the same */
               const mobileMenuButton = document.getElementById('mobile-menu-button'); const mobileMenu = document.getElementById('mobile-menu');
               mobileMenuButton.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
 
