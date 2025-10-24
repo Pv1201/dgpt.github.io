@@ -537,14 +537,12 @@
              };
              [clientsSlider, laborSlider, softwareSlider].forEach(slider => slider.addEventListener('input', updateCalculator));
 
-             // --- Tab Switching Logic --- /* Remains the same */
               const tabButtons = document.querySelectorAll('.tab-button'); const tabContents = document.querySelectorAll('.tab-content');
               tabButtons.forEach(button => { button.addEventListener('click', () => {
                   tabButtons.forEach(btn => btn.classList.remove('active')); tabContents.forEach(content => content.classList.add('hidden')); button.classList.add('active');
                   const targetId = button.getAttribute('data-target'); document.getElementById(targetId).classList.remove('hidden');
               }); });
 
-             // --- Mobile Menu Logic --- /* Remains the same */
               const mobileMenuButton = document.getElementById('mobile-menu-button'); const mobileMenu = document.getElementById('mobile-menu');
               mobileMenuButton.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
 
