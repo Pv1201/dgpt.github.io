@@ -10,13 +10,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Emerald & Ash -->
-    <!-- Application Structure Plan: Reflects PDF data exactly. Structure: 1) Key Metrics. 2) Initial Investment. 3) Recurring Costs. 4) Growth Scenarios (Tabs mirroring PDFs: '12-Month Slow Start', 'Rapid Scaling 1-7', 'At Scale - 50 Clients' - updated table format). 5) Interactive Calculator. -->
-    <!-- Visualization & Content Choices: 
+    <!-- Application Structure Plan: Reflects PDF data exactly. Structure: 1) Key Metrics. 2) Initial Investment. 3) Recurring Costs. 4) Growth Scenarios (Tabs mirroring PDFs: '12-Month Slow Start', 'Rapid Scaling 1-7' - updated labor col format, 'At Scale - 50 Clients' - table format). 5) Interactive Calculator. -->
+    <!-- Visualization & Content Choices:
         - Key Metrics (Cards): Goal: Inform. Method: HTML/Tailwind. Data: From conversation ($1500/$1600).
         - Initial Investment (Card): Goal: Inform. Method: HTML/Tailwind. Data: From PDF 'Mo 1-12' ($2060).
         - Software COGS (Doughnut): Goal: Compare Proportions. Method: Chart.js Doughnut. Data: From PDF 'Software COGS' ($199.01 breakdown). Library: Chart.js.
-        - Labor Costs (Table): Goal: Inform. Method: HTML Table. Data: Phased costs based on PDF 'Dispensaries 1-7' logic.
-        - Growth Scenarios (Tables + Summary Cards): Goal: Show Change/Analyze. Method: HTML Tables + JS Tab switching. Data: Populated directly from PDFs. Interaction: Tabs. **'At Scale' updated to table format per user image.** **'Rapid Scaling' month column removed.**
+        - Labor Costs (Table): Goal: Inform. Method: HTML Table. Data: Phased costs.
+        - Growth Scenarios (Tables + Summary Cards): Goal: Show Change/Analyze. Method: HTML Tables + JS Tab switching. Data: Populated directly from PDFs. Interaction: Tabs. **'Rapid Scaling' labor column updated with notation.** **'At Scale' uses table format.**
         - Calculator (Input + Display): Goal: Explore. Method: HTML Sliders + JS. Includes Software Cost slider up to $300. Interaction: Sliders.
         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
     -->
@@ -120,6 +120,12 @@
         #at-scale-table .profit-margin-row td:first-child {
             font-weight: bold; /* Bold the 'Overall Profit Margin' label */
         }
+        /* Style for labor breakdown notation */
+        .labor-breakdown {
+            font-size: 0.75rem; /* Smaller text */
+            color: #6b7280; /* Medium gray */
+            margin-left: 0.25rem;
+        }
 
     </style>
 </head>
@@ -158,8 +164,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-12 md:space-y-16">
 
         <section id="metrics">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Core Business Model</h2>
-             <p class="text-center text-gray-600 mb-10 max-w-3xl mx-auto">Key financial inputs and target operational metrics for the DispensaryGPT SaaS offering using the optimal GCP + GPT-5/5mini stack.</p>
+             <p class="text-center text-gray-600 mb-10 max-w-3xl mx-auto">Core financials and target operational metrics for the DispensaryGPT SaaS offering using the optimal GCP + GPT-5/5mini stack.</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="metric-card">
                     <h3 class="text-base font-semibold text-gray-500 mb-2">Subscription</h3>
@@ -251,7 +256,7 @@
         </section>
 
          <section id="projections">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Growth Projections</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Costs, Timeline, Roadmap</h2>
             <div class="section-card">
                  <p class="text-center text-gray-600 mb-8 max-w-4xl mx-auto">Financial performance based on the scenarios presented in the provided documents.</p>
 
@@ -296,7 +301,7 @@
                             </tfoot>
                         </table>
                     </div>
-                     <p class="text-xs text-center text-gray-500 mt-4">Mo 1-12, 2 clients'.</p>
+                     <p class="text-xs text-center text-gray-500 mt-4">Mo 1-12, 2 clients</p>
                 </div>
 
                 <div id="content-scaling" class="tab-content hidden">
@@ -310,7 +315,7 @@
                                     <th scope="col" class="px-3 py-2 text-center">Clients</th>
                                     <th scope="col" class="px-3 py-2 text-right">Revenue</th>
                                     <th scope="col" class="px-3 py-2 text-right">Op S/W COGS</th>
-                                    <th scope="col" class="px-3 py-2 text-right">Op Labor COGS</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Op Labor COGS (Phase)</th> <!-- Header Updated -->
                                     <th scope="col" class="px-3 py-2 text-right">Total Cost</th>
                                     <th scope="col" class="px-3 py-2 text-right">Monthly Profit</th>
                                     <th scope="col" class="px-3 py-2 text-right">Margin</th>
@@ -318,7 +323,7 @@
                                 </tr>
                             </thead>
                             <tbody id="scaling-table-body">
-                                <!-- Populated by JS, Month column excluded -->
+                                <!-- Populated by JS, Month column excluded, Labor breakdown added -->
                             </tbody>
                              <tfoot>
                                 <tr class="font-semibold text-gray-900 bg-gray-50">
@@ -334,7 +339,7 @@
                             </tfoot>
                         </table>
                     </div>
-                    <p class="text-xs text-center text-gray-500 mt-4">Dispensaries 1-7'.</p>
+                    <p class="text-xs text-center text-gray-500 mt-4">Dispensaries 1-7</p>
                 </div>
 
                  <div id="content-at-scale" class="tab-content hidden">
@@ -354,7 +359,7 @@
                             </tbody>
                         </table>
                     </div>
-                     <p class="text-xs text-center text-gray-500 mt-4">@ Scale.</p>
+                     <p class="text-xs text-center text-gray-500 mt-4">@ Scale</p>
                 </div>
             </div>
         </section>
@@ -413,48 +418,41 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            const softwareCogsBreakdownPDF = {
-                labels: ['AI Querying (GPT-5 Stack)', 'Data Ingestion Pipeline', 'Core Infrastructure "Rent"'],
-                data: [127.91, 36.00, 35.10], // From PDF 'Software COGS'
-                total: 199.01
+            // --- Data Definitions Based on PDFs ---
+            const softwareCogsBreakdownPDF = { /* Remains the same */
+                labels: ['AI Querying (GPT-5 Stack)', 'Data Ingestion Pipeline', 'Core Infrastructure "Rent"'], data: [127.91, 36.00, 35.10], total: 199.01
             };
-
-             const slowStartDataPDF = [ /* Data remains the same */
-                [1, 1, 3100, 70.00, 199.01, 720.00], [2, 1, 1500, 140.00, 199.01, 720.00], [3, 1, 1500, 120.00, 199.01, 720.00],
-                [4, 1, 1500, 190.00, 199.01, 720.00], [5, 1, 1500, 210.00, 199.01, 720.00], [6, 1, 1500, 110.00, 199.01, 720.00],
-                [7, 2, 4600, 180.00, 398.02, 1440.00], [8, 2, 3000, 270.00, 398.02, 1440.00], [9, 2, 3000, 210.00, 398.02, 1440.00],
-                [10, 2, 3000, 280.00, 398.02, 1440.00], [11, 2, 3000, 140.00, 398.02, 1440.00], [12, 2, 3000, 140.00, 398.02, 1440.00]
+             const slowStartDataPDF = [ /* Remains the same */
+                 [1, 1, 3100, 70.00, 199.01, 720.00], [2, 1, 1500, 140.00, 199.01, 720.00], [3, 1, 1500, 120.00, 199.01, 720.00], [4, 1, 1500, 190.00, 199.01, 720.00], [5, 1, 1500, 210.00, 199.01, 720.00], [6, 1, 1500, 110.00, 199.01, 720.00], [7, 2, 4600, 180.00, 398.02, 1440.00], [8, 2, 3000, 270.00, 398.02, 1440.00], [9, 2, 3000, 210.00, 398.02, 1440.00], [10, 2, 3000, 280.00, 398.02, 1440.00], [11, 2, 3000, 140.00, 398.02, 1440.00], [12, 2, 3000, 140.00, 398.02, 1440.00]
              ];
-             const slowStartTotalsPDF = { /* Data remains the same */
+             const slowStartTotalsPDF = { /* Remains the same */
                  revenue: 30300, devSw: 2060, opSw: 3383.18, opLabor: 12960, cost: 18403.18, profit: 11896.82, finalProfit: 11597.82
              };
 
-             const scalingDataPDF = [ /* Data remains the same, month included here for processing */
-                [1, 1, 3100, 199.01, 720.00, 919.01, 2180.99, 0.704, 2180.99], [2, 2, 4600, 398.02, 1440.00, 1838.02, 2761.98, 0.600, 4942.97],
-                [3, 3, 6100, 597.03, 2160.00, 2757.03, 3342.97, 0.548, 8285.94], [4, 4, 7600, 796.04, 2610.00, 3406.04, 4193.96, 0.552, 12479.90],
-                [5, 5, 9100, 995.05, 3060.00, 4055.05, 5044.95, 0.554, 17524.85], [6, 6, 10600, 1194.06, 3510.00, 4704.06, 5895.94, 0.556, 23420.79],
-                [7, 7, 12100, 1393.07, 3960.00, 5353.07, 6746.93, 0.558, 30167.72]
+             // MODIFIED: Added labor breakdown string
+             const scalingDataPDF = [
+                // Month, Clients, Revenue, Op SW, Op Labor Total, Cost, Profit, Margin, Cum. Profit, Labor Breakdown Str
+                [1, 1, 3100, 199.01, 720.00, 919.01, 2180.99, 0.704, 2180.99, '(1xP1)'],
+                [2, 2, 4600, 398.02, 1440.00, 1838.02, 2761.98, 0.600, 4942.97, '(2xP1)'],
+                [3, 3, 6100, 597.03, 2160.00, 2757.03, 3342.97, 0.548, 8285.94, '(3xP1)'],
+                [4, 4, 7600, 796.04, 2610.00, 3406.04, 4193.96, 0.552, 12479.90, '(3xP1 + 1xP2)'],
+                [5, 5, 9100, 995.05, 3060.00, 4055.05, 5044.95, 0.554, 17524.85, '(3xP1 + 2xP2)'],
+                [6, 6, 10600, 1194.06, 3510.00, 4704.06, 5895.94, 0.556, 23420.79, '(3xP1 + 3xP2)'],
+                [7, 7, 12100, 1393.07, 3960.00, 5353.07, 6746.93, 0.558, 30167.72, '(3xP1 + 4xP2)']
              ];
-             const scalingTotalsPDF = { /* Data remains the same */
+             const scalingTotalsPDF = { /* Remains the same */
                  revenue: 12100, opSw: 1393.07, opLabor: 3960.00, cost: 5353.07, profit: 6746.93, margin: 0.558, finalProfit: 30167.72
              };
-
-             const scaleSnapshotImagePDF = { // From image 'image_3fcc61.png'
-                clients: 50,
-                revenue: 75000,
-                laborCost: 15000,
-                softwareCost: 9950.50,
-                totalCost: 24950.50,
-                profit: 50049.50,
-                margin: 0.667 // approx
+             const scaleSnapshotImagePDF = { /* Remains the same */
+                 clients: 50, revenue: 75000, laborCost: 15000, softwareCost: 9950.50, totalCost: 24950.50, profit: 50049.50, margin: 0.667
              };
 
-            // --- Helper Functions ---
+            // --- Helper Functions --- /* Remains the same */
             const formatCurrency = (value, digits = 0) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
             const formatPercent = (value) => new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
 
-            // --- Chart Rendering ---
-            const renderCogsChart = () => { /* Remains the same */
+            // --- Chart Rendering --- /* Remains the same */
+            const renderCogsChart = () => {
                  const ctx = document.getElementById('cogsChart').getContext('2d');
                  if (window.cogsChart instanceof Chart) window.cogsChart.destroy();
                  window.cogsChart = new Chart(ctx, {
@@ -478,24 +476,24 @@
                             <td class="px-3 py-2 text-right font-bold ${cumulativeProfit >= 0 ? 'text-emerald-800' : 'text-red-800'}">${formatCurrency(cumulativeProfit, 2)}</td></tr>`;
                     tableBody.innerHTML += rowHtml;
                 });
-                document.getElementById('slow-start-total-revenue').textContent = formatCurrency(slowStartTotalsPDF.revenue); document.getElementById('slow-start-total-dev-sw').textContent = formatCurrency(slowStartTotalsPDF.devSw, 2);
-                document.getElementById('slow-start-total-op-sw').textContent = formatCurrency(slowStartTotalsPDF.opSw, 2); document.getElementById('slow-start-total-op-labor').textContent = formatCurrency(slowStartTotalsPDF.opLabor);
-                document.getElementById('slow-start-total-cost').textContent = formatCurrency(slowStartTotalsPDF.cost, 2); document.getElementById('slow-start-total-profit').textContent = formatCurrency(slowStartTotalsPDF.profit, 2);
-                document.getElementById('slow-start-final-profit').textContent = formatCurrency(slowStartTotalsPDF.finalProfit, 2);
+                 document.getElementById('slow-start-total-revenue').textContent = formatCurrency(slowStartTotalsPDF.revenue); document.getElementById('slow-start-total-dev-sw').textContent = formatCurrency(slowStartTotalsPDF.devSw, 2);
+                 document.getElementById('slow-start-total-op-sw').textContent = formatCurrency(slowStartTotalsPDF.opSw, 2); document.getElementById('slow-start-total-op-labor').textContent = formatCurrency(slowStartTotalsPDF.opLabor);
+                 document.getElementById('slow-start-total-cost').textContent = formatCurrency(slowStartTotalsPDF.cost, 2); document.getElementById('slow-start-total-profit').textContent = formatCurrency(slowStartTotalsPDF.profit, 2);
+                 document.getElementById('slow-start-final-profit').textContent = formatCurrency(slowStartTotalsPDF.finalProfit, 2);
             };
 
-            const populateScalingTable = () => { // MODIFIED: Month column removed
+            const populateScalingTable = () => { // MODIFIED: Added Labor Breakdown
                  const tableBody = document.getElementById('scaling-table-body');
                  tableBody.innerHTML = '';
                  scalingDataPDF.forEach(row => {
-                     // Exclude month (index 0)
-                    const [, clients, revenue, opSw, opLabor, cost, profit, margin, cumProfit] = row;
+                     // Get all data including the breakdown string
+                    const [, clients, revenue, opSw, opLabor, cost, profit, margin, cumProfit, laborBreakdown] = row; // Adjusted index
                     const rowHtml = `
                          <tr class="bg-white border-b hover:bg-gray-50">
                             <td class="px-3 py-2 text-center">${clients}</td>
                             <td class="px-3 py-2 text-right">${formatCurrency(revenue)}</td>
                             <td class="px-3 py-2 text-right">${formatCurrency(opSw, 2)}</td>
-                            <td class="px-3 py-2 text-right">${formatCurrency(opLabor)}</td>
+                            <td class="px-3 py-2 text-right">${formatCurrency(opLabor)}<span class="labor-breakdown">${laborBreakdown || ''}</span></td> <!-- Added breakdown -->
                             <td class="px-3 py-2 text-right font-semibold text-red-600">${formatCurrency(cost, 2)}</td>
                             <td class="px-3 py-2 text-right font-semibold ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}">${formatCurrency(profit, 2)}</td>
                             <td class="px-3 py-2 text-right">${formatPercent(margin)}</td>
@@ -503,56 +501,36 @@
                         </tr>`;
                     tableBody.innerHTML += rowHtml;
                 });
-                 // Update footer totals exactly from PDF data object for month 7
+                 // Update footer totals (remains the same)
                  document.getElementById('scaling-total-revenue').textContent = formatCurrency(scalingTotalsPDF.revenue);
                  document.getElementById('scaling-total-op-sw').textContent = formatCurrency(scalingTotalsPDF.opSw, 2);
-                 document.getElementById('scaling-total-op-labor').textContent = formatCurrency(scalingTotalsPDF.opLabor);
+                 document.getElementById('scaling-total-op-labor').textContent = formatCurrency(scalingTotalsPDF.opLabor); // Keep showing total labor cost
                  document.getElementById('scaling-total-cost').textContent = formatCurrency(scalingTotalsPDF.cost, 2);
                  document.getElementById('scaling-total-profit').textContent = formatCurrency(scalingTotalsPDF.profit, 2);
                  document.getElementById('scaling-final-margin').textContent = formatPercent(scalingTotalsPDF.margin);
                  document.getElementById('scaling-final-profit').textContent = formatCurrency(scalingTotalsPDF.finalProfit, 2);
             };
 
-            const updateScaleSnapshot = () => { // MODIFIED: Generate table rows
-                const tableBody = document.getElementById('at-scale-table-body');
-                tableBody.innerHTML = ''; // Clear previous content
-
+            const updateScaleSnapshot = () => { /* Remains the same */
+                const tableBody = document.getElementById('at-scale-table-body'); tableBody.innerHTML = '';
                 const data = [
-                    { metric: "Number of Clients", calc: "", total: scaleSnapshotImagePDF.clients },
-                    { metric: "Total Revenue", calc: "50 × $1,500", total: formatCurrency(scaleSnapshotImagePDF.revenue) },
-                    { metric: "Total Labor Costs", calc: "50 × $300", total: `-${formatCurrency(scaleSnapshotImagePDF.laborCost)}` },
-                    { metric: "Total Software Costs", calc: "50 × $199.01", total: `-${formatCurrency(scaleSnapshotImagePDF.softwareCost, 2)}` },
-                    { metric: "Total Monthly Costs", calc: "$15,000 + $9,950.50", total: `-${formatCurrency(scaleSnapshotImagePDF.totalCost, 2)}` },
-                    { metric: "Total Monthly Net Profit", calc: "$75,000 - $24,950.50", total: formatCurrency(scaleSnapshotImagePDF.profit, 2) },
+                    { metric: "Number of Clients", calc: "", total: scaleSnapshotImagePDF.clients }, { metric: "Total Revenue", calc: "50 × $1,500", total: formatCurrency(scaleSnapshotImagePDF.revenue) },
+                    { metric: "Total Labor Costs", calc: "50 × $300", total: `-${formatCurrency(scaleSnapshotImagePDF.laborCost)}` }, { metric: "Total Software Costs", calc: "50 × $199.01", total: `-${formatCurrency(scaleSnapshotImagePDF.softwareCost, 2)}` },
+                    { metric: "Total Monthly Costs", calc: "$15,000 + $9,950.50", total: `-${formatCurrency(scaleSnapshotImagePDF.totalCost, 2)}` }, { metric: "Total Monthly Net Profit", calc: "$75,000 - $24,950.50", total: formatCurrency(scaleSnapshotImagePDF.profit, 2) },
                     { metric: "Overall Profit Margin", calc: "$50,049.50 / $75,000", total: formatPercent(scaleSnapshotImagePDF.margin) },
                 ];
-
                 data.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.className = item.metric === "Overall Profit Margin" ? "profit-margin-row font-bold text-emerald-700 bg-emerald-50" : "";
-                    row.innerHTML = `
-                        <td>${item.metric}</td>
-                        <td class="calculation-col">${item.calc}</td>
-                        <td class="text-right total-col ${item.metric.includes('Cost') ? 'text-red-600' : ''} ${item.metric.includes('Profit') || item.metric.includes('Margin') ? 'text-emerald-700' : ''}">${item.total}</td>
-                    `;
+                    const row = document.createElement('tr'); row.className = item.metric === "Overall Profit Margin" ? "profit-margin-row font-bold text-emerald-700 bg-emerald-50" : "";
+                    row.innerHTML = `<td>${item.metric}</td> <td class="calculation-col">${item.calc}</td> <td class="text-right total-col ${item.metric.includes('Cost') ? 'text-red-600' : ''} ${item.metric.includes('Profit') || item.metric.includes('Margin') ? 'text-emerald-700' : ''}">${item.total}</td>`;
                     tableBody.appendChild(row);
                 });
             };
 
-
-            // --- Interactive Calculator ---
-             const clientsSlider = document.getElementById('clientsSlider');
-             const laborSlider = document.getElementById('laborSlider');
-             const softwareSlider = document.getElementById('softwareSlider');
-             const clientsValue = document.getElementById('clientsValue');
-             const laborValue = document.getElementById('laborValue');
-             const softwareValue = document.getElementById('softwareValue');
-             const calcRevenue = document.getElementById('calcRevenue');
-             const calcCosts = document.getElementById('calcCosts');
-             const calcProfit = document.getElementById('calcProfit');
-             const calcMargin = document.getElementById('calcMargin');
-
-             const updateCalculator = () => { /* Remains the same */
+            // --- Interactive Calculator --- /* Remains the same */
+             const clientsSlider = document.getElementById('clientsSlider'); const laborSlider = document.getElementById('laborSlider'); const softwareSlider = document.getElementById('softwareSlider');
+             const clientsValue = document.getElementById('clientsValue'); const laborValue = document.getElementById('laborValue'); const softwareValue = document.getElementById('softwareValue');
+             const calcRevenue = document.getElementById('calcRevenue'); const calcCosts = document.getElementById('calcCosts'); const calcProfit = document.getElementById('calcProfit'); const calcMargin = document.getElementById('calcMargin');
+             const updateCalculator = () => {
                  const numClients = parseInt(clientsSlider.value); const avgLaborCost = parseInt(laborSlider.value); const avgSoftwareCost = parseFloat(softwareSlider.value); const monthlySubscription = 1500;
                  clientsValue.textContent = numClients; laborValue.textContent = avgLaborCost; softwareValue.textContent = avgSoftwareCost.toFixed(0);
                  const totalRevenue = numClients * monthlySubscription; const totalLabor = numClients * avgLaborCost; const totalSoftware = numClients * avgSoftwareCost; const totalCosts = totalLabor + totalSoftware; const totalProfit = totalRevenue - totalCosts; const profitMargin = totalRevenue > 0 ? totalProfit / totalRevenue : 0;
@@ -560,21 +538,19 @@
              };
              [clientsSlider, laborSlider, softwareSlider].forEach(slider => slider.addEventListener('input', updateCalculator));
 
-             // --- Tab Switching Logic --- /* Remains the same */
               const tabButtons = document.querySelectorAll('.tab-button'); const tabContents = document.querySelectorAll('.tab-content');
               tabButtons.forEach(button => { button.addEventListener('click', () => {
                   tabButtons.forEach(btn => btn.classList.remove('active')); tabContents.forEach(content => content.classList.add('hidden')); button.classList.add('active');
                   const targetId = button.getAttribute('data-target'); document.getElementById(targetId).classList.remove('hidden');
               }); });
 
-             // --- Mobile Menu Logic --- /* Remains the same */
               const mobileMenuButton = document.getElementById('mobile-menu-button'); const mobileMenu = document.getElementById('mobile-menu');
               mobileMenuButton.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
 
             // --- Initial Render ---
             renderCogsChart();
             populateSlowStartTable();
-            populateScalingTable();
+            populateScalingTable(); // This function now includes the labor breakdown
             updateScaleSnapshot();
             updateCalculator();
         });
