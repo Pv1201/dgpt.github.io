@@ -3,31 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DispensaryGPT</title>
+    <title>DispensaryGPT - Financial Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Sage & Stone -->
-    <!-- Application Structure Plan: The application is designed as a single-page executive dashboard. The structure flows from a high-level summary to detailed breakdowns, addressing the key questions from the source text in a logical order. 1) 'Key Metrics' for an instant snapshot. 2) 'Business Model' to detail revenue vs. costs. 3) 'Financial Scenarios' section with interactive tabs to explore specific, detailed profit models without cluttering the main view. 4) 'Profitability Calculator' for interactive financial modeling. 5) 'Scalability & Operations' to address the technical and labor strategy. This structure allows a user to get a quick overview and then dive deep into specific financial questions, which is ideal for strategic planning. -->
+    <!-- Chosen Palette: Emerald & Ash -->
+    <!-- Application Structure Plan: Reflects PDF data exactly. Structure: 1) Key Metrics. 2) Initial Investment. 3) Recurring Costs. 4) Growth Scenarios (Tabs mirroring PDFs: '12-Month Slow Start', 'Rapid Scaling 1-7', 'At Scale - 50 Clients' - updated table format). 5) Interactive Calculator. -->
     <!-- Visualization & Content Choices: 
-        - Key Metrics (Cards): Report Info -> Core pricing. Goal -> Inform. Method -> HTML/Tailwind cards. Interaction -> None. Justification -> Quick, high-level summary.
-        - Cost/Revenue Charts (Doughnut/Bar): Report Info -> Cost proportions and growth. Goal -> Compare/Show Change. Method -> Chart.js. Interaction -> Hover tooltips. Justification -> Visualizes key financial dynamics. Library -> Chart.js.
-        - Financial Scenario Tables (HTML Tables): Report Info -> Detailed profit calculations for specific scenarios. Goal -> Inform/Analyze. Method -> Styled HTML tables with JS tab switching. Interaction -> Click tabs to switch views. Justification -> Provides granular data for deep financial analysis, which charts cannot offer.
-        - Labor Automation (Line Chart): Report Info -> Manual effort decrease. Goal -> Show Change. Method -> Chart.js Line. Interaction -> Hover tooltips. Justification -> Illustrates the core scalability thesis. Library -> Chart.js.
-        - Technical Details (Accordion): Report Info -> Maintenance, tech stack. Goal -> Organize. Method -> HTML/Tailwind accordion. Interaction -> Click to expand. Justification -> Condenses detailed text into a clean interface.
+        - Key Metrics (Cards): Goal: Inform. Method: HTML/Tailwind. Data: From conversation ($1500/$1600).
+        - Initial Investment (Card): Goal: Inform. Method: HTML/Tailwind. Data: From PDF 'Mo 1-12' ($2060).
+        - Software COGS (Doughnut): Goal: Compare Proportions. Method: Chart.js Doughnut. Data: From PDF 'Software COGS' ($199.01 breakdown). Library: Chart.js.
+        - Labor Costs (Table): Goal: Inform. Method: HTML Table. Data: Phased costs based on PDF 'Dispensaries 1-7' logic.
+        - Growth Scenarios (Tables + Summary Cards): Goal: Show Change/Analyze. Method: HTML Tables + JS Tab switching. Data: Populated directly from PDFs. Interaction: Tabs. **'At Scale' updated to table format per user image.** **'Rapid Scaling' month column removed.**
+        - Calculator (Input + Display): Goal: Explore. Method: HTML Sliders + JS. Includes Software Cost slider up to $300. Interaction: Sliders.
         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
     -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F9FAFB;
+            background-color: #F9FAFB; /* Light Gray */
         }
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
+            max-width: 450px;
             margin-left: auto;
             margin-right: auto;
             height: 280px;
@@ -35,7 +36,7 @@
         }
         @media (min-width: 768px) {
             .chart-container {
-                height: 380px;
+                height: 320px;
                 max-height: 400px;
             }
         }
@@ -45,11 +46,6 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             padding: 1.5rem;
             text-align: center;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
         .section-card {
              background-color: #FFFFFF;
@@ -68,15 +64,17 @@
             font-weight: 600;
             transition: all 0.2s ease-in-out;
             border: 2px solid transparent;
+            font-size: 0.875rem; /* Smaller text */
+            white-space: nowrap; /* Prevent wrapping */
         }
         .tab-button.active {
-            background-color: #ECFDF5;
-            color: #065F46;
-            border-color: #6EE7B7;
+            background-color: #ECFDF5; /* Light Emerald */
+            color: #065F46; /* Dark Emerald */
+            border-color: #6EE7B7; /* Medium Emerald */
         }
         .tab-button:not(.active) {
-            color: #4B5563;
-            background-color: #F3F4F6;
+            color: #4B5563; /* Medium Gray */
+            background-color: #F3F4F6; /* Light Gray */
         }
         .table-responsive {
             display: block;
@@ -84,6 +82,45 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
+        thead th {
+             position: sticky;
+             top: 0;
+             background-color: #F3F4F6; /* Light gray header */
+             z-index: 10;
+             white-space: nowrap; /* Prevent header wrapping */
+        }
+         tbody td {
+             white-space: nowrap; /* Prevent cell wrapping */
+        }
+        /* Style for scrollbars */
+        .table-responsive::-webkit-scrollbar { height: 8px; }
+        .table-responsive::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .table-responsive::-webkit-scrollbar-track { background-color: #f1f5f9; }
+
+        /* Specific styles for the 'At Scale' table */
+         #at-scale-table td, #at-scale-table th {
+            padding: 0.75rem 1rem; /* Adjust padding */
+            border-bottom: 1px solid #e5e7eb; /* Light gray border */
+        }
+         #at-scale-table th {
+            text-align: left;
+            font-weight: 600;
+            color: #374151; /* Darker gray header text */
+        }
+        #at-scale-table tr:last-child td {
+            border-bottom: none; /* Remove border on last row */
+        }
+         #at-scale-table .calculation-col {
+            color: #6b7280; /* Medium gray for calculation */
+            font-style: italic;
+        }
+         #at-scale-table .total-col {
+            font-weight: 600;
+        }
+        #at-scale-table .profit-margin-row td:first-child {
+            font-weight: bold; /* Bold the 'Overall Profit Margin' label */
+        }
+
     </style>
 </head>
 <body class="text-gray-800">
@@ -92,157 +129,278 @@
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-2 sm:space-x-3">
-                    <span class="text-xl sm:text-2xl font-bold text-green-700">DispensaryGPT</span>
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-emerald-600">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+                    </svg>
+                    <span class="text-xl sm:text-2xl font-bold text-emerald-700">DispensaryGPT</span>
                 </div>
-                <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
-                    <a href="#metrics" class="hover:text-green-700 transition">Metrics</a>
-                    <a href="#scenarios" class="hover:text-green-700 transition">Financial Scenarios</a>
-                    <a href="#calculator" class="hover:text-green-700 transition">Profit Calculator</a>
-                    <a href="#scaling" class="hover:text-green-700 transition">Scaling & Ops</a>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-600">
+                    <a href="#metrics" class="hover:text-emerald-700 transition">Metrics</a>
+                    <a href="#costs" class="hover:text-emerald-700 transition">Costs</a>
+                    <a href="#projections" class="hover:text-emerald-700 transition">Projections</a>
+                    <a href="#calculator" class="hover:text-emerald-700 transition">Calculator</a>
                 </div>
+                 <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-gray-500 hover:text-emerald-700 hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+             <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden hidden py-2 text-center text-sm font-medium text-gray-600">
+                <a href="#metrics" class="block py-2 hover:text-emerald-700 transition">Metrics</a>
+                <a href="#costs" class="block py-2 hover:text-emerald-700 transition">Costs</a>
+                <a href="#projections" class="block py-2 hover:text-emerald-700 transition">Projections</a>
+                <a href="#calculator" class="block py-2 hover:text-emerald-700 transition">Calculator</a>
             </div>
         </nav>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-12 md:space-y-16">
 
-        <section id="metrics" class="mb-12 md:mb-16">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Core Business Metrics</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section id="metrics">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Core Business Model</h2>
+             <p class="text-center text-gray-600 mb-10 max-w-3xl mx-auto">Key financial inputs and target operational metrics for the DispensaryGPT SaaS offering using the optimal GCP + GPT-5/5mini stack.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="metric-card">
-                    <h3 class="text-base font-semibold text-gray-500 mb-2">Monthly Subscription</h3>
-                    <p class="text-4xl md:text-5xl font-bold text-green-700">$1,300</p>
-                    <p class="text-xs sm:text-sm text-gray-500 mt-2">Per Dispensary</p>
+                    <h3 class="text-base font-semibold text-gray-500 mb-2">Subscription</h3>
+                    <p class="text-3xl md:text-4xl font-bold text-emerald-700">$1,500</p>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-2">Per Month / Client</p>
                 </div>
                 <div class="metric-card">
-                    <h3 class="text-base font-semibold text-gray-500 mb-2">One-Time Onboarding</h3>
-                    <p class="text-4xl md:text-5xl font-bold text-green-700">$1,600</p>
-                    <p class="text-xs sm:text-sm text-gray-500 mt-2">Setup & Initial Fine-Tuning</p>
+                    <h3 class="text-base font-semibold text-gray-500 mb-2">Onboarding Fee</h3>
+                    <p class="text-3xl md:text-4xl font-bold text-emerald-700">$1,600</p>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-2">One-Time / Client</p>
                 </div>
-                <div class="metric-card">
-                    <h3 class="text-base font-semibold text-gray-500 mb-2"> Labor Rate (Est.)</h3>
-                    <p class="text-4xl md:text-5xl font-bold text-green-700">$45/hr</p>
-                    <p class="text-xs sm:text-sm text-gray-500 mt-2">For Onboarding & Maintenance</p>
+                 <div class="metric-card">
+                    <h3 class="text-base font-semibold text-gray-500 mb-2">Target Labor Cost</h3>
+                    <p class="text-3xl md:text-4xl font-bold text-emerald-700">$180</p>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-2">Per Month / Client (Scaled)</p>
+                </div>
+                 <div class="metric-card">
+                    <h3 class="text-base font-semibold text-gray-500 mb-2">Target Margin</h3>
+                    <p class="text-3xl md:text-4xl font-bold text-emerald-700">~75%</p> <!-- Updated Target Margin based on final costs -->
+                    <p class="text-xs sm:text-sm text-gray-500 mt-2">Overall (Scaled)</p>
                 </div>
             </div>
         </section>
-        
-        <section id="scenarios" class="mb-12 md:mb-16">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Detailed Financial Scenarios</h2>
-            <div class="section-card">
-                 <p class="text-center text-gray-600 mb-8 max-w-4xl mx-auto">This section provides a granular breakdown of costs and profitability under specific growth assumptions. Use the tabs to switch between the initial slow-growth phase and the subsequent expansion phase to understand the financial trajectory of the business.</p>
-                
-                <div class="flex justify-center space-x-2 sm:space-x-4 mb-8">
-                    <button id="tab-scenario1" class="tab-button active">First Year (2 Clients)</button>
-                    <button id="tab-scenario2" class="tab-button">Expansion Phase</button>
-                </div>
 
-                <div id="content-scenario1">
-                    <h3 class="text-xl font-semibold text-center mb-2">Scenario 1: First Year with Two Clients</h3>
-                    <p class="text-center text-sm text-gray-500 mb-6">This projection assumes you onboard one client in Month 1 and a second client in Month 2, then service only these two clients for the remainder of the year.</p>
-                    <div class="table-responsive">
-                        <table class="w-full text-sm text-left text-gray-500">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                                <tr>
-                                    <th scope="col" class="px-4 py-3">Month</th>
-                                    <th scope="col" class="px-4 py-3 text-center">Clients</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Revenue</th>
-                                    <th scope="col" class="px-4 py-3 text-center">Labor (Hrs)</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Labor Cost</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Software Cost</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Total Cost</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Monthly Profit</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Cum. Profit</th>
-                                </tr>
-                            </thead>
-                            <tbody id="scenario1-table-body">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="content-scenario2" class="hidden">
-                    <h3 class="text-xl font-semibold text-center mb-2">Scenario 2: Expansion Phase (Post-18 Months)</h3>
-                    <p class="text-center text-sm text-gray-500 mb-6">This table projects financials starting from Month 19, assuming you have 2 stable clients and begin onboarding 1 new client each month. Labor costs per client decrease due to automation.</p>
-                    <div class="table-responsive">
-                       <table class="w-full text-sm text-left text-gray-500">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                                <tr>
-                                    <th scope="col" class="px-4 py-3">Month</th>
-                                    <th scope="col" class="px-4 py-3 text-center">Total Clients</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Revenue</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Total Labor Cost</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Total Software Cost</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Total Cost</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Monthly Profit</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Profit Margin</th>
-                                </tr>
-                            </thead>
-                            <tbody id="scenario2-table-body">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                 <div class="mt-8 pt-6 border-t border-gray-200">
-                     <h3 class="text-xl font-semibold text-center mb-4">Core Model Development Costs (One-Time)</h3>
-                     <p class="text-center text-sm text-gray-500 mb-6 max-w-2xl mx-auto">These are estimated one-time software costs for the initial development of the base DispensaryGPT model, separate from ongoing, per-client operational costs. This is your initial R&D investment.</p>
-                     <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-lg">
-                        <div class="flex justify-between items-center text-sm mb-2">
-                            <span class="text-gray-600">GCP Vertex AI (Model Training/Tuning):</span>
-                            <span class="font-semibold text-gray-800">$2,500 - $4,000</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm mb-2">
-                            <span class="text-gray-600">GCP Cloud Storage / BigQuery (Dataset Prep):</span>
-                            <span class="font-semibold text-gray-800">$500 - $1,000</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm pt-2 border-t mt-2">
-                            <span class="text-gray-700 font-bold">Estimated Total One-Time Cost:</span>
-                            <span class="font-bold text-green-700">$3,000 - $5,000</span>
-                        </div>
+        <section id="costs">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Cost Structure</h2>
+             <p class="text-center text-gray-600 mb-10 max-w-3xl mx-auto">Breakdown of the initial investment and recurring operational costs per client for the live RAG system.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                <div class="section-card">
+                     <h3 class="text-xl font-semibold text-center mb-4">Initial Investment (Development)</h3>
+                     <p class="text-center text-gray-600 text-sm mb-6">Estimated one-time (high estimate) software costs incurred during the 12-month development phase, dev labor excluded).</p>
+                     <div class="bg-gray-50 p-6 rounded-lg text-center">
+                         <p class="text-sm font-medium text-gray-500 mb-1">Total Development Software Cost</p>
+                         <p class="text-4xl font-bold text-emerald-700">~$5,000</p>
+                         <p class="text-xs text-gray-500 mt-1">(Distributed & billed across Months 1-12)</p>
                      </div>
-                 </div>
+                </div>
+                 <div class="section-card">
+                     <h3 class="text-xl font-semibold text-center mb-4">Recurring Software COGS Breakdown</h3>
+                     <p class="text-center text-gray-600 text-sm mb-6">Estimated monthly cost per client for the GCP + GPT-5/5mini stack ('Software COGS').</p>
+                     <div class="chart-container mb-4">
+                         <canvas id="cogsChart"></canvas>
+                     </div>
+                      <p class="text-center text-sm text-gray-500">Total: <span class="font-bold text-gray-700">$199.01 / month / client (high estimate: $300/mo/client</span></p>
+                </div>
+                 <div class="section-card lg:col-span-2">
+                     <h3 class="text-xl font-semibold text-center mb-4">Recurring Labor COGS (Phased)</h3>
+                     <p class="text-center text-gray-600 text-sm mb-6">Estimated monthly offshore labor cost per client (@ $45/hr), decreases as automation improves</p>
+                      <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 max-w-lg mx-auto">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Phase</th>
+                                    <th scope="col" class="px-4 py-3">Clients</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Hours / Client</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Cost / Client</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b">
+                                    <td class="px-4 py-3 font-medium">Phase 1 (Initial)</td>
+                                    <td class="px-4 py-3">1 - 3</td>
+                                    <td class="px-4 py-3 text-center">16 hrs</td>
+                                    <td class="px-4 py-3 text-right font-semibold">$720</td>
+                                </tr>
+                                <tr class="bg-white border-b">
+                                    <td class="px-4 py-3 font-medium">Phase 2 (Refinement)</td>
+                                    <td class="px-4 py-3">4 - 10</td>
+                                    <td class="px-4 py-3 text-center">10 hrs</td>
+                                    <td class="px-4 py-3 text-right font-semibold">$450</td>
+                                </tr>
+                                 <tr class="bg-white border-b">
+                                    <td class="px-4 py-3 font-medium">Phase 3 (Automation)</td>
+                                    <td class="px-4 py-3">11 - 19</td>
+                                    <td class="px-4 py-3 text-center">7 hrs</td>
+                                    <td class="px-4 py-3 text-right font-semibold">$315</td>
+                                </tr>
+                                 <tr class="bg-white">
+                                    <td class="px-4 py-3 font-medium">Phase 4 (Scaled)</td>
+                                    <td class="px-4 py-3">20+</td>
+                                    <td class="px-4 py-3 text-center">4 hrs</td>
+                                    <td class="px-4 py-3 text-right font-semibold">$180</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section id="calculator" class="mb-12 md:mb-16">
+         <section id="projections">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Growth Projections</h2>
+            <div class="section-card">
+                 <p class="text-center text-gray-600 mb-8 max-w-4xl mx-auto">Financial performance based on the scenarios presented in the provided documents.</p>
+
+                <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 overflow-x-auto pb-2">
+                    <button data-target="content-slow-start" class="tab-button active">Month 1-12</button>
+                    <button data-target="content-scaling" class="tab-button"> Clients 1-7</button>
+                    <button data-target="content-at-scale" class="tab-button">At Scale, 50 Clients</button>
+                </div>
+
+                <div id="content-slow-start" class="tab-content">
+                    <h3 class="text-xl font-semibold text-center mb-2">Scenario 1: First 12 Months (Slow Start)</h3>
+                    <p class="text-center text-sm text-gray-500 mb-6">Reflects data from 'Mo 1-12, 2 clients', including dev software costs and fixed $720 labor cost.</p>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="w-full text-xs text-left text-gray-500">
+                             <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-3 py-2">Month</th>
+                                    <th scope="col" class="px-3 py-2 text-center">Clients</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Revenue</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Dev S/W Cost (one-time)</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Op S/W COGS</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Op Labor COGS</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Total Cost</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Monthly Profit</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Cum. Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="slow-start-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                             <tfoot>
+                                <tr class="font-semibold text-gray-900 bg-gray-50">
+                                    <td colspan="2" class="px-3 py-2 text-base">Year 1 Total</td>
+                                    <td class="px-3 py-2 text-right" id="slow-start-total-revenue">$30,300</td>
+                                    <td class="px-3 py-2 text-right" id="slow-start-total-dev-sw">$2,060</td>
+                                    <td class="px-3 py-2 text-right" id="slow-start-total-op-sw">$3,383</td>
+                                    <td class="px-3 py-2 text-right" id="slow-start-total-op-labor">$12,960</td>
+                                    <td class="px-3 py-2 text-right text-red-600" id="slow-start-total-cost">$18,403</td>
+                                    <td class="px-3 py-2 text-right text-emerald-700" id="slow-start-total-profit">$11,897</td>
+                                    <td class="px-3 py-2 text-right text-emerald-700 font-bold" id="slow-start-final-profit">$11,598</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                     <p class="text-xs text-center text-gray-500 mt-4">Mo 1-12, 2 clients'.</p>
+                </div>
+
+                <div id="content-scaling" class="tab-content hidden">
+                     <h3 class="text-xl font-semibold text-center mb-2">Scenario 2: Rapid Scaling (First 7 Months)</h3>
+                     <p class="text-center text-sm text-gray-500 mb-6"> 'Dispensaries 1-7', showing phased labor cost reduction.</p>
+                     <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="w-full text-xs text-left text-gray-500">
+                             <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <!-- Month column removed -->
+                                    <th scope="col" class="px-3 py-2 text-center">Clients</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Revenue</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Op S/W COGS</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Op Labor COGS</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Total Cost</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Monthly Profit</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Margin</th>
+                                    <th scope="col" class="px-3 py-2 text-right">Cum. Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scaling-table-body">
+                                <!-- Populated by JS, Month column excluded -->
+                            </tbody>
+                             <tfoot>
+                                <tr class="font-semibold text-gray-900 bg-gray-50">
+                                    <td class="px-3 py-2 text-base">End of Month 7</td> <!-- Updated colspan -->
+                                     <td class="px-3 py-2 text-right" id="scaling-total-revenue">$12,100</td>
+                                    <td class="px-3 py-2 text-right" id="scaling-total-op-sw">$1,393</td>
+                                    <td class="px-3 py-2 text-right" id="scaling-total-op-labor">$3,960</td>
+                                    <td class="px-3 py-2 text-right text-red-600" id="scaling-total-cost">$5,353</td>
+                                    <td class="px-3 py-2 text-right text-emerald-700" id="scaling-total-profit">$6,747</td>
+                                    <td class="px-3 py-2 text-right" id="scaling-final-margin">55.8%</td>
+                                    <td class="px-3 py-2 text-right text-emerald-700 font-bold" id="scaling-final-profit">$30,168</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p class="text-xs text-center text-gray-500 mt-4">Dispensaries 1-7'.</p>
+                </div>
+
+                 <div id="content-at-scale" class="tab-content hidden">
+                    <h3 class="text-xl font-semibold text-center mb-2">Scenario 3: At Scale (50 Clients)</h3>
+                     <p class="text-center text-sm text-gray-500 mb-6"> Assumes 50 clients, $1500 revenue, $300 labor, $199.01 software.</p>
+                     <div class="table-responsive max-w-xl mx-auto">
+                        <table id="at-scale-table" class="w-full text-sm">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Calculation</th>
+                                    <th class="text-right">Monthly Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="at-scale-table-body">
+                                <!-- Populated by JS to match image_3fcc61.png -->
+                            </tbody>
+                        </table>
+                    </div>
+                     <p class="text-xs text-center text-gray-500 mt-4">@ Scale.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="calculator">
             <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Interactive Profitability Calculator</h2>
             <div class="section-card">
-                 <p class="text-center text-gray-600 mb-10 max-w-4xl mx-auto">Explore the financial potential as you scale. Adjust the number of clients and cost assumptions to see the immediate impact on monthly revenue, costs, and profit margin.</p>
+                 <p class="text-center text-gray-600 mb-10 max-w-4xl mx-auto">Explore financial potential. Adjust client count, average labor cost, and average software cost to see the impact on profitability.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                     <div class="space-y-6">
                         <div>
-                            <label for="clientsSlider" class="block text-sm font-medium text-gray-700">Number of Dispensary Clients: <span id="clientsValue" class="font-bold text-green-700">10</span></label>
-                            <input id="clientsSlider" type="range" min="1" max="50" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <label for="clientsSlider" class="block text-sm font-medium text-gray-700">Number of Dispensary Clients: <span id="clientsValue" class="font-bold text-emerald-700">25</span></label>
+                            <input id="clientsSlider" type="range" min="1" max="100" value="25" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
                         </div>
                         <div>
-                            <label for="laborSlider" class="block text-sm font-medium text-gray-700">Avg. Monthly Labor Cost per Client: $<span id="laborValue" class="font-bold text-green-700">720</span></label>
-                            <input id="laborSlider" type="range" min="300" max="1500" value="720" step="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <label for="laborSlider" class="block text-sm font-medium text-gray-700">Avg. Monthly Labor Cost per Client: $<span id="laborValue" class="font-bold text-emerald-700">180</span></label>
+                            <input id="laborSlider" type="range" min="100" max="720" value="180" step="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                             <p class="text-xs text-gray-500 mt-1">(Target is $180, Initial is $720)</p>
                         </div>
-                         <div>
-                            <label for="softwareSlider" class="block text-sm font-medium text-gray-700">Avg. Monthly Software Cost per Client: $<span id="softwareValue" class="font-bold text-green-700">141</span></label>
-                            <input id="softwareSlider" type="range" min="50" max="500" value="141" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                         <div> <!-- Added Software Cost Slider -->
+                            <label for="softwareSlider" class="block text-sm font-medium text-gray-700">Avg. Monthly Software Cost per Client: $<span id="softwareValue" class="font-bold text-emerald-700">199</span></label>
+                            <input id="softwareSlider" type="range" min="50" max="300" value="199.01" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                             <p class="text-xs text-gray-500 mt-1">(Current estimate is ~$199)</p>
                         </div>
+
+
                     </div>
-                    <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                    <div class="bg-emerald-50 p-6 rounded-lg border border-emerald-200">
                         <h3 class="text-lg font-semibold text-center mb-4 text-gray-800">Projected Monthly Financials</h3>
                         <div class="space-y-4">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Total Revenue:</span>
-                                <span id="calcRevenue" class="text-2xl font-bold text-gray-900">$13,000</span>
+                                <span id="calcRevenue" class="text-2xl font-bold text-gray-900">$37,500</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600">Total Costs:</span>
-                                <span id="calcCosts" class="text-2xl font-bold text-red-600">$8,610</span>
+                                <span id="calcCosts" class="text-2xl font-bold text-red-600">$9,475</span>
                             </div>
-                            <hr class="my-2">
+                            <hr class="my-2 border-emerald-200">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 font-bold">Net Profit:</span>
-                                <span id="calcProfit" class="text-3xl font-bold text-green-700">$4,390</span>
+                                <span id="calcProfit" class="text-3xl font-bold text-emerald-700">$28,025</span>
                             </div>
                              <div class="flex justify-between items-center">
                                 <span class="text-gray-600 font-bold">Profit Margin:</span>
-                                <span id="calcMargin" class="text-3xl font-bold text-green-700">33.8%</span>
+                                <span id="calcMargin" class="text-3xl font-bold text-emerald-700">74.7%</span>
                             </div>
                         </div>
                     </div>
@@ -250,276 +408,176 @@
             </div>
         </section>
 
-        <section id="scaling" class="mb-12 md:mb-16">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Scaling & Operational Strategy</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                <div class="section-card">
-                    <h3 class="text-xl font-semibold text-center mb-4">Labor Automation & Scalability</h3>
-                     <p class="text-center text-gray-600 mb-6">Profitability hinges on reducing manual labor per client. Initial onboarding is labor-intensive, but data cleaning, fine-tuning, and validation processes are automated over time. This chart shows the projected drop in monthly maintenance hours as the system matures.</p>
-                    <div class="chart-container">
-                        <canvas id="automationChart"></canvas>
-                    </div>
-                </div>
-                <div class="section-card">
-                    <h3 class="text-xl font-semibold text-center mb-4">Technical & Maintenance Roadmap</h3>
-                     <p class="text-center text-gray-600 mb-6">The long-term vision is a scalable SaaS platform, requiring a structured approach to maintenance, features, and onboarding. Here are the core operational components.</p>
-                    <div id="accordion-container" class="space-y-3">
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            
-            const baseData = {
-                costs: {
-                    laborRate: 45,
-                    softwarePerClient: 141.13
-                },
-                revenue: {
-                    subscription: 1300,
-                    onboarding: 1600
-                },
-                automation: {
-                    initialHours: 16,
-                    reductionPerClient: 0.25 
-                },
-                accordion: [
-                    {
-                        title: "The Role of Monthly Fine-Tuning",
-                        content: "Fine-tuning adapts the base AI model to each dispensary's unique data, like product names, customer slang, and sales patterns. Initially, this is a monthly task to quickly correct errors and improve accuracy. It involves feeding new, cleaned sales data into the model to keep its responses relevant and prevent 'hallucinations' or incorrect answers."
-                    },
-                    {
-                        title: "Strategy to Prevent AI Hallucination",
-                        content: "The primary strategy is a RAG (Retrieval-Augmented Generation) system combined with rigorous fine-tuning. The model is trained to first retrieve factual information (e.g., product inventory, sales data) from the dispensary's database (like Dutchie) and then use that data to generate an answer. This grounds the AI in reality. Regular fine-tuning on client-specific data further reduces the chance of making things up."
-                    },
-                    {
-                        title: "Transitioning to Quarterly Maintenance",
-                        content: "After 3-4 monthly cycles, the model for a specific client becomes highly stable. At this point, maintenance can shift to a quarterly schedule. The goal of the initial intensive phase is to build a robust, client-specific knowledge base. Once stable, only significant changes (like adding a new product category) would require immediate attention."
-                    },
-                    {
-                        title: "18-Month Vision: A Scalable SaaS Product",
-                        content: "The 18-month goal is to evolve from a service-heavy model to a true SaaS platform. This includes building a 'Copilot' admin panel for clients to manage their AI and a polished 'DispensaryGPT' chat interface. The onboarding process will become highly automated, allowing for rapid scaling. The initial manual work serves as the R&D to build these automated tools."
-                    },
-                     {
-                        title: "Tech Stack & Associated Costs",
-                        content: "The stack is primarily GCP (Google Cloud Platform). The estimated software costs of ~$141/mo per client are comprehensive, covering Vertex AI for model hosting, Cloud Storage, database solutions, and necessary monitoring/observability tools (e.g., GCP's Cloud Monitoring suite, analogous to Datadog)."
-                    }
-                ]
+
+            const softwareCogsBreakdownPDF = {
+                labels: ['AI Querying (GPT-5 Stack)', 'Data Ingestion Pipeline', 'Core Infrastructure "Rent"'],
+                data: [127.91, 36.00, 35.10], // From PDF 'Software COGS'
+                total: 199.01
             };
-            const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+
+             const slowStartDataPDF = [ /* Data remains the same */
+                [1, 1, 3100, 70.00, 199.01, 720.00], [2, 1, 1500, 140.00, 199.01, 720.00], [3, 1, 1500, 120.00, 199.01, 720.00],
+                [4, 1, 1500, 190.00, 199.01, 720.00], [5, 1, 1500, 210.00, 199.01, 720.00], [6, 1, 1500, 110.00, 199.01, 720.00],
+                [7, 2, 4600, 180.00, 398.02, 1440.00], [8, 2, 3000, 270.00, 398.02, 1440.00], [9, 2, 3000, 210.00, 398.02, 1440.00],
+                [10, 2, 3000, 280.00, 398.02, 1440.00], [11, 2, 3000, 140.00, 398.02, 1440.00], [12, 2, 3000, 140.00, 398.02, 1440.00]
+             ];
+             const slowStartTotalsPDF = { /* Data remains the same */
+                 revenue: 30300, devSw: 2060, opSw: 3383.18, opLabor: 12960, cost: 18403.18, profit: 11896.82, finalProfit: 11597.82
+             };
+
+             const scalingDataPDF = [ /* Data remains the same, month included here for processing */
+                [1, 1, 3100, 199.01, 720.00, 919.01, 2180.99, 0.704, 2180.99], [2, 2, 4600, 398.02, 1440.00, 1838.02, 2761.98, 0.600, 4942.97],
+                [3, 3, 6100, 597.03, 2160.00, 2757.03, 3342.97, 0.548, 8285.94], [4, 4, 7600, 796.04, 2610.00, 3406.04, 4193.96, 0.552, 12479.90],
+                [5, 5, 9100, 995.05, 3060.00, 4055.05, 5044.95, 0.554, 17524.85], [6, 6, 10600, 1194.06, 3510.00, 4704.06, 5895.94, 0.556, 23420.79],
+                [7, 7, 12100, 1393.07, 3960.00, 5353.07, 6746.93, 0.558, 30167.72]
+             ];
+             const scalingTotalsPDF = { /* Data remains the same */
+                 revenue: 12100, opSw: 1393.07, opLabor: 3960.00, cost: 5353.07, profit: 6746.93, margin: 0.558, finalProfit: 30167.72
+             };
+
+             const scaleSnapshotImagePDF = { // From image 'image_3fcc61.png'
+                clients: 50,
+                revenue: 75000,
+                laborCost: 15000,
+                softwareCost: 9950.50,
+                totalCost: 24950.50,
+                profit: 50049.50,
+                margin: 0.667 // approx
+             };
+
+            // --- Helper Functions ---
+            const formatCurrency = (value, digits = 0) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
             const formatPercent = (value) => new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
-            
-            const renderAutomationChart = () => {
-                const ctx = document.getElementById('automationChart').getContext('2d');
-                if (window.automationChart instanceof Chart) {
-                    window.automationChart.destroy();
-                }
-                const labels = [];
-                const data = [];
-                let currentHours = baseData.automation.initialHours;
-                for(let i = 1; i <= 10; i++) {
-                    labels.push(`Client ${i}`);
-                    data.push(currentHours.toFixed(2));
-                    currentHours = currentHours * (1 - baseData.automation.reductionPerClient);
-                }
 
-                window.automationChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Monthly Manual Labor Hours',
-                            data: data,
-                            borderColor: '#10B981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            fill: true,
-                            tension: 0.3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Hours per Month' } },
-                            x: { grid: { display: false } }
-                        },
-                        plugins: {
-                            legend: { display: false }
-                        }
-                    }
+            // --- Chart Rendering ---
+            const renderCogsChart = () => { /* Remains the same */
+                 const ctx = document.getElementById('cogsChart').getContext('2d');
+                 if (window.cogsChart instanceof Chart) window.cogsChart.destroy();
+                 window.cogsChart = new Chart(ctx, {
+                    type: 'doughnut', data: { labels: softwareCogsBreakdownPDF.labels, datasets: [{ data: softwareCogsBreakdownPDF.data, backgroundColor: ['#10B981', '#3B82F6', '#F59E0B'], borderColor: '#FFFFFF', borderWidth: 3, }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } }, tooltip: { callbacks: { label: function(context) {
+                        let label = context.label || ''; if (label) label += ': '; const value = context.parsed || 0; const percentage = (value / softwareCogsBreakdownPDF.total * 100).toFixed(1); label += formatCurrency(value, 2) + ` (${percentage}%)`; return label;
+                    }}} } }
                 });
             };
 
-            const clientsSlider = document.getElementById('clientsSlider');
-            const laborSlider = document.getElementById('laborSlider');
-            const softwareSlider = document.getElementById('softwareSlider');
-            const clientsValue = document.getElementById('clientsValue');
-            const laborValue = document.getElementById('laborValue');
-            const softwareValue = document.getElementById('softwareValue');
-            const calcRevenue = document.getElementById('calcRevenue');
-            const calcCosts = document.getElementById('calcCosts');
-            const calcProfit = document.getElementById('calcProfit');
-            const calcMargin = document.getElementById('calcMargin');
-
-            const updateCalculator = () => {
-                const numClients = parseInt(clientsSlider.value);
-                const laborCost = parseInt(laborSlider.value);
-                const softwareCost = parseInt(softwareSlider.value);
-                
-                clientsValue.textContent = numClients;
-                laborValue.textContent = laborCost;
-                softwareValue.textContent = softwareCost;
-                
-                const totalRevenue = numClients * baseData.revenue.subscription;
-                const totalCosts = numClients * (laborCost + softwareCost);
-                const totalProfit = totalRevenue - totalCosts;
-                const profitMargin = totalRevenue > 0 ? totalProfit / totalRevenue : 0;
-                
-                calcRevenue.textContent = formatCurrency(totalRevenue);
-                calcCosts.textContent = formatCurrency(totalCosts);
-                calcProfit.textContent = formatCurrency(totalProfit);
-                calcMargin.textContent = formatPercent(profitMargin);
+            // --- Table Population ---
+             const populateSlowStartTable = () => { /* Remains the same */
+                 const tableBody = document.getElementById('slow-start-table-body'); tableBody.innerHTML = ''; let cumulativeProfit = 0;
+                 slowStartDataPDF.forEach(row => {
+                    const [month, clients, revenue, devSw, opSw, opLabor] = row; const monthlyTotalCost = devSw + opSw + opLabor; const monthlyProfit = revenue - monthlyTotalCost; cumulativeProfit += monthlyProfit;
+                    const rowHtml = `
+                        <tr class="bg-white border-b hover:bg-gray-50">
+                            <td class="px-3 py-2 font-medium">${month}</td><td class="px-3 py-2 text-center">${clients}</td><td class="px-3 py-2 text-right">${formatCurrency(revenue)}</td>
+                            <td class="px-3 py-2 text-right text-gray-500">${formatCurrency(devSw, 2)}</td><td class="px-3 py-2 text-right">${formatCurrency(opSw, 2)}</td><td class="px-3 py-2 text-right">${formatCurrency(opLabor)}</td>
+                            <td class="px-3 py-2 text-right font-semibold text-red-600">${formatCurrency(monthlyTotalCost, 2)}</td><td class="px-3 py-2 text-right font-semibold ${monthlyProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}">${formatCurrency(monthlyProfit, 2)}</td>
+                            <td class="px-3 py-2 text-right font-bold ${cumulativeProfit >= 0 ? 'text-emerald-800' : 'text-red-800'}">${formatCurrency(cumulativeProfit, 2)}</td></tr>`;
+                    tableBody.innerHTML += rowHtml;
+                });
+                document.getElementById('slow-start-total-revenue').textContent = formatCurrency(slowStartTotalsPDF.revenue); document.getElementById('slow-start-total-dev-sw').textContent = formatCurrency(slowStartTotalsPDF.devSw, 2);
+                document.getElementById('slow-start-total-op-sw').textContent = formatCurrency(slowStartTotalsPDF.opSw, 2); document.getElementById('slow-start-total-op-labor').textContent = formatCurrency(slowStartTotalsPDF.opLabor);
+                document.getElementById('slow-start-total-cost').textContent = formatCurrency(slowStartTotalsPDF.cost, 2); document.getElementById('slow-start-total-profit').textContent = formatCurrency(slowStartTotalsPDF.profit, 2);
+                document.getElementById('slow-start-final-profit').textContent = formatCurrency(slowStartTotalsPDF.finalProfit, 2);
             };
 
-            [clientsSlider, laborSlider, softwareSlider].forEach(slider => slider.addEventListener('input', updateCalculator));
-            
-            const renderAccordion = () => {
-                const container = document.getElementById('accordion-container');
-                container.innerHTML = '';
-                baseData.accordion.forEach((item) => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'border border-gray-200 rounded-lg';
-                    itemDiv.innerHTML = `
-                        <button class="accordion-header flex justify-between items-center w-full p-4 text-left font-medium text-gray-700 hover:bg-gray-50">
-                            <span class="text-sm sm:text-base">${item.title}</span>
-                             <svg class="accordion-icon w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div class="accordion-content hidden p-4 border-t border-gray-200 bg-gray-50">
-                            <p class="text-gray-600 text-sm sm:text-base">${item.content}</p>
-                        </div>`;
-                    container.appendChild(itemDiv);
-                });
-
-                container.addEventListener('click', (e) => {
-                    const header = e.target.closest('.accordion-header');
-                    if (header) {
-                        const content = header.nextElementSibling;
-                        const icon = header.querySelector('.accordion-icon');
-                        content.classList.toggle('hidden');
-                        icon.classList.toggle('rotate-180');
-                    }
-                });
-            };
-
-            const populateScenario1Table = () => {
-                const tableBody = document.getElementById('scenario1-table-body');
-                tableBody.innerHTML = '';
-                let cumulativeProfit = 0;
-                let c1_hours = baseData.automation.initialHours;
-                let c2_hours = 0;
-
-                for (let i = 1; i <= 12; i++) {
-                    let clients = 0;
-                    let onboardingRev = 0;
-                    if (i >= 1) clients = 1;
-                    if (i >= 2) clients = 2;
-                    if (i === 1) onboardingRev = baseData.revenue.onboarding;
-                    if (i === 2) {
-                        onboardingRev = baseData.revenue.onboarding;
-                        c2_hours = c1_hours; 
-                    }
-                    
-                    c1_hours = i > 1 ? c1_hours * (1 - baseData.automation.reductionPerClient / 4) : c1_hours;
-                    if (i > 2) {
-                       c2_hours = c2_hours * (1 - baseData.automation.reductionPerClient / 4);
-                    }
-                    
-                    const totalHours = (i>=1 ? c1_hours : 0) + (i>=2 ? c2_hours: 0);
-                    const subRev = clients * baseData.revenue.subscription;
-                    const totalRev = subRev + onboardingRev;
-                    const laborCost = totalHours * baseData.costs.laborRate;
-                    const softwareCost = clients * baseData.costs.softwarePerClient;
-                    const totalCost = laborCost + softwareCost;
-                    const monthlyProfit = totalRev - totalCost;
-                    cumulativeProfit += monthlyProfit;
-
-                    const row = `
-                        <tr class="bg-white border-b">
-                            <td class="px-4 py-3 font-medium">${i}</td>
-                            <td class="px-4 py-3 text-center">${clients}</td>
-                            <td class="px-4 py-3 text-right">${formatCurrency(totalRev)}</td>
-                            <td class="px-4 py-3 text-center">${totalHours.toFixed(1)}</td>
-                            <td class="px-4 py-3 text-right">${formatCurrency(laborCost)}</td>
-                            <td class="px-4 py-3 text-right">${formatCurrency(softwareCost)}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-red-600">${formatCurrency(totalCost)}</td>
-                            <td class="px-4 py-3 text-right font-semibold ${monthlyProfit >= 0 ? 'text-green-700' : 'text-red-700'}">${formatCurrency(monthlyProfit)}</td>
-                            <td class="px-4 py-3 text-right font-bold ${cumulativeProfit >= 0 ? 'text-green-800' : 'text-red-800'}">${formatCurrency(cumulativeProfit)}</td>
+            const populateScalingTable = () => { // MODIFIED: Month column removed
+                 const tableBody = document.getElementById('scaling-table-body');
+                 tableBody.innerHTML = '';
+                 scalingDataPDF.forEach(row => {
+                     // Exclude month (index 0)
+                    const [, clients, revenue, opSw, opLabor, cost, profit, margin, cumProfit] = row;
+                    const rowHtml = `
+                         <tr class="bg-white border-b hover:bg-gray-50">
+                            <td class="px-3 py-2 text-center">${clients}</td>
+                            <td class="px-3 py-2 text-right">${formatCurrency(revenue)}</td>
+                            <td class="px-3 py-2 text-right">${formatCurrency(opSw, 2)}</td>
+                            <td class="px-3 py-2 text-right">${formatCurrency(opLabor)}</td>
+                            <td class="px-3 py-2 text-right font-semibold text-red-600">${formatCurrency(cost, 2)}</td>
+                            <td class="px-3 py-2 text-right font-semibold ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}">${formatCurrency(profit, 2)}</td>
+                            <td class="px-3 py-2 text-right">${formatPercent(margin)}</td>
+                            <td class="px-3 py-2 text-right font-bold ${cumProfit >= 0 ? 'text-emerald-800' : 'text-red-800'}">${formatCurrency(cumProfit, 2)}</td>
                         </tr>`;
-                    tableBody.innerHTML += row;
-                }
+                    tableBody.innerHTML += rowHtml;
+                });
+                 // Update footer totals exactly from PDF data object for month 7
+                 document.getElementById('scaling-total-revenue').textContent = formatCurrency(scalingTotalsPDF.revenue);
+                 document.getElementById('scaling-total-op-sw').textContent = formatCurrency(scalingTotalsPDF.opSw, 2);
+                 document.getElementById('scaling-total-op-labor').textContent = formatCurrency(scalingTotalsPDF.opLabor);
+                 document.getElementById('scaling-total-cost').textContent = formatCurrency(scalingTotalsPDF.cost, 2);
+                 document.getElementById('scaling-total-profit').textContent = formatCurrency(scalingTotalsPDF.profit, 2);
+                 document.getElementById('scaling-final-margin').textContent = formatPercent(scalingTotalsPDF.margin);
+                 document.getElementById('scaling-final-profit').textContent = formatCurrency(scalingTotalsPDF.finalProfit, 2);
             };
 
-            const populateScenario2Table = () => {
-                const tableBody = document.getElementById('scenario2-table-body');
-                tableBody.innerHTML = '';
-                let totalClients = 2;
-                const avgLaborCostPerClient = (baseData.automation.initialHours * Math.pow(1 - baseData.automation.reductionPerClient, 3)) * baseData.costs.laborRate;
+            const updateScaleSnapshot = () => { // MODIFIED: Generate table rows
+                const tableBody = document.getElementById('at-scale-table-body');
+                tableBody.innerHTML = ''; // Clear previous content
 
-                for (let i = 19; i <= 36; i++) {
-                    totalClients++;
-                    const onboardingRev = baseData.revenue.onboarding;
-                    const subRev = totalClients * baseData.revenue.subscription;
-                    const totalRev = subRev + onboardingRev;
-                    const laborCost = totalClients * avgLaborCostPerClient;
-                    const softwareCost = totalClients * baseData.costs.softwarePerClient;
-                    const totalCost = laborCost + softwareCost;
-                    const monthlyProfit = totalRev - totalCost;
-                    const profitMargin = totalRev > 0 ? monthlyProfit / totalRev : 0;
+                const data = [
+                    { metric: "Number of Clients", calc: "", total: scaleSnapshotImagePDF.clients },
+                    { metric: "Total Revenue", calc: "50 × $1,500", total: formatCurrency(scaleSnapshotImagePDF.revenue) },
+                    { metric: "Total Labor Costs", calc: "50 × $300", total: `-${formatCurrency(scaleSnapshotImagePDF.laborCost)}` },
+                    { metric: "Total Software Costs", calc: "50 × $199.01", total: `-${formatCurrency(scaleSnapshotImagePDF.softwareCost, 2)}` },
+                    { metric: "Total Monthly Costs", calc: "$15,000 + $9,950.50", total: `-${formatCurrency(scaleSnapshotImagePDF.totalCost, 2)}` },
+                    { metric: "Total Monthly Net Profit", calc: "$75,000 - $24,950.50", total: formatCurrency(scaleSnapshotImagePDF.profit, 2) },
+                    { metric: "Overall Profit Margin", calc: "$50,049.50 / $75,000", total: formatPercent(scaleSnapshotImagePDF.margin) },
+                ];
 
-                    const row = `
-                        <tr class="bg-white border-b">
-                            <td class="px-4 py-3 font-medium">${i}</td>
-                            <td class="px-4 py-3 text-center">${totalClients}</td>
-                            <td class="px-4 py-3 text-right">${formatCurrency(totalRev)}</td>
-                            <td class="px-4 py-3 text-right">${formatCurrency(laborCost)}</td>
-                            <td class="px-4 py-3 text-right">${formatCurrency(softwareCost)}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-red-600">${formatCurrency(totalCost)}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-green-700">${formatCurrency(monthlyProfit)}</td>
-                            <td class="px-4 py-3 text-right font-bold text-green-800">${formatPercent(profitMargin)}</td>
-                        </tr>`;
-                    tableBody.innerHTML += row;
-                }
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = item.metric === "Overall Profit Margin" ? "profit-margin-row font-bold text-emerald-700 bg-emerald-50" : "";
+                    row.innerHTML = `
+                        <td>${item.metric}</td>
+                        <td class="calculation-col">${item.calc}</td>
+                        <td class="text-right total-col ${item.metric.includes('Cost') ? 'text-red-600' : ''} ${item.metric.includes('Profit') || item.metric.includes('Margin') ? 'text-emerald-700' : ''}">${item.total}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
             };
-            
-            const tab1 = document.getElementById('tab-scenario1');
-            const tab2 = document.getElementById('tab-scenario2');
-            const content1 = document.getElementById('content-scenario1');
-            const content2 = document.getElementById('content-scenario2');
-            
-            tab1.addEventListener('click', () => {
-                tab1.classList.add('active');
-                tab2.classList.remove('active');
-                content1.classList.remove('hidden');
-                content2.classList.add('hidden');
-            });
-            
-            tab2.addEventListener('click', () => {
-                tab2.classList.add('active');
-                tab1.classList.remove('active');
-                content2.classList.remove('hidden');
-                content1.classList.add('hidden');
-            });
 
-            renderAutomationChart();
+
+            // --- Interactive Calculator ---
+             const clientsSlider = document.getElementById('clientsSlider');
+             const laborSlider = document.getElementById('laborSlider');
+             const softwareSlider = document.getElementById('softwareSlider');
+             const clientsValue = document.getElementById('clientsValue');
+             const laborValue = document.getElementById('laborValue');
+             const softwareValue = document.getElementById('softwareValue');
+             const calcRevenue = document.getElementById('calcRevenue');
+             const calcCosts = document.getElementById('calcCosts');
+             const calcProfit = document.getElementById('calcProfit');
+             const calcMargin = document.getElementById('calcMargin');
+
+             const updateCalculator = () => { /* Remains the same */
+                 const numClients = parseInt(clientsSlider.value); const avgLaborCost = parseInt(laborSlider.value); const avgSoftwareCost = parseFloat(softwareSlider.value); const monthlySubscription = 1500;
+                 clientsValue.textContent = numClients; laborValue.textContent = avgLaborCost; softwareValue.textContent = avgSoftwareCost.toFixed(0);
+                 const totalRevenue = numClients * monthlySubscription; const totalLabor = numClients * avgLaborCost; const totalSoftware = numClients * avgSoftwareCost; const totalCosts = totalLabor + totalSoftware; const totalProfit = totalRevenue - totalCosts; const profitMargin = totalRevenue > 0 ? totalProfit / totalRevenue : 0;
+                 calcRevenue.textContent = formatCurrency(totalRevenue); calcCosts.textContent = formatCurrency(totalCosts, 2); calcProfit.textContent = formatCurrency(totalProfit, 2); calcMargin.textContent = formatPercent(profitMargin);
+             };
+             [clientsSlider, laborSlider, softwareSlider].forEach(slider => slider.addEventListener('input', updateCalculator));
+
+             // --- Tab Switching Logic --- /* Remains the same */
+              const tabButtons = document.querySelectorAll('.tab-button'); const tabContents = document.querySelectorAll('.tab-content');
+              tabButtons.forEach(button => { button.addEventListener('click', () => {
+                  tabButtons.forEach(btn => btn.classList.remove('active')); tabContents.forEach(content => content.classList.add('hidden')); button.classList.add('active');
+                  const targetId = button.getAttribute('data-target'); document.getElementById(targetId).classList.remove('hidden');
+              }); });
+
+             // --- Mobile Menu Logic --- /* Remains the same */
+              const mobileMenuButton = document.getElementById('mobile-menu-button'); const mobileMenu = document.getElementById('mobile-menu');
+              mobileMenuButton.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
+
+            // --- Initial Render ---
+            renderCogsChart();
+            populateSlowStartTable();
+            populateScalingTable();
+            updateScaleSnapshot();
             updateCalculator();
-            renderAccordion();
-            populateScenario1Table();
-            populateScenario2Table();
         });
     </script>
 </body>
 </html>
-
